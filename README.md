@@ -3550,5 +3550,6 @@ class CustomerOrderController extends Controller
 
 # Now Your Ecommerce Store is ready to use for all function is easy to work all time :
  <img width="1504" height="879" alt="image" src="https://github.com/user-attachments/assets/90d06630-b415-4213-8bdf-e3554fd3d5a7" />
-![Uploading image.png…]()
+<img width="1038" height="900" alt="image" src="https://github.com/user-attachments/assets/74a27eed-75c6-4e5e-b924-7527d6b3407e" />
+
 
