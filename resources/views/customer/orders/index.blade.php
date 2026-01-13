@@ -213,5 +213,31 @@
 <div class="d-flex justify-content-center mt-3">
     {{ $orders->links('pagination::bootstrap-5') }}
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.view-order').forEach(function (btn) {
+
+        btn.addEventListener('click', function () {
+
+            let targetId = this.getAttribute('data-target');
+            let row = document.getElementById(targetId);
+
+            if (!row) return;
+
+            // 🔄 toggle
+            if (row.classList.contains('d-none')) {
+                row.classList.remove('d-none');
+                this.textContent = 'Hide';
+            } else {
+                row.classList.add('d-none');
+                this.textContent = 'View';
+            }
+        });
+
+    });
+
+});
+</script>
 
 @endsection
