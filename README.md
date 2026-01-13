@@ -816,8 +816,10 @@ Route::middleware('auth:customer')->group(function () {
 });
 
  ```
-<img width="373" height="244" alt="image" src="https://github.com/user-attachments/assets/eb2fb732-c04f-4674-83a5-e4a668e9844d" />
-<img width="414" height="204" alt="image" src="https://github.com/user-attachments/assets/25a3e10c-ee13-4b8c-86fa-80d1e85684b4" />
+<img width="1838" height="878" alt="image" src="https://github.com/user-attachments/assets/5c4d3d02-e79b-4bce-825e-27e75ac51a18" />
+
+<img width="1758" height="862" alt="image" src="https://github.com/user-attachments/assets/64ef6d93-76bf-4a25-a93c-bb8479219e17" />
+
 <img width="628" height="322" alt="image" src="https://github.com/user-attachments/assets/a34d4463-0ece-42de-9e5d-06f6a83fcfcd" />
 <img width="628" height="181" alt="image" src="https://github.com/user-attachments/assets/c3598cc5-f96d-423b-87b2-687ede5c1b33" />
 
