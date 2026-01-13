@@ -27,7 +27,7 @@
         <div class="card checkout-card">
             <div class="card-body address-box">
                 <h5>📍 Delivery Address</h5>
-                <p><strong>Name:</strong> {{ auth('customer')->user()->name }}</p>
+                <p><strong>Customer Name:</strong> {{ auth('customer')->user()->name }}</p>
                 <p><strong>Address:</strong> {{ $address['address'] }}</p>
                 <p>{{ $address['city'] }}, {{ $address['state'] }} - {{ $address['pincode'] }}</p>
             </div>

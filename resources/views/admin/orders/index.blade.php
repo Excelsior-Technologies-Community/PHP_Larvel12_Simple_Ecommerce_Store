@@ -42,6 +42,14 @@
                class="form-control"
                placeholder="Search order, product, customer, address...">
     </div>
+    {{-- 📅 DATE FILTER --}}
+<div class="col-md-2">
+    <input type="date"
+           name="date"
+           value="{{ request('date') }}"
+           class="form-control">
+</div>
+
 
     <div class="col-md-2">
         <select name="price_sort" class="form-select">
