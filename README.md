@@ -973,7 +973,7 @@ use App\Http\Controllers\AddressController;
 # Create index.blade.php file for resource/view/address folder
 # Resource/view/address/index.blade.php file
 
- <img width="628" height="381" alt="image" src="https://github.com/user-attachments/assets/a0c3d859-560e-47c8-9e8f-c19c0d4a7d30" />
+ <img width="500" height="300" alt="image" src="https://github.com/user-attachments/assets/a0c3d859-560e-47c8-9e8f-c19c0d4a7d30" />
 
 # When fillup all address details and click save/continue payment then open payment page and show all details for customer name , address , products details.
 # Create checkout controller 
@@ -1045,7 +1045,7 @@ use App\Http\Controllers\CheckoutController;
 ```
 # Create payment .blade.php file for resource/view/checkout folder
 
-<img width="607" height="471" alt="image" src="https://github.com/user-attachments/assets/3cffd0e4-1664-4124-a292-11460ed6d686" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/3cffd0e4-1664-4124-a292-11460ed6d686" />
 
 # Now Adding payment method for cash and razorpay and when click any one option then order place successful and store all details for orders and order_items table in database 
 # Adding razorpay id in .env file
@@ -1410,7 +1410,7 @@ class CheckoutController extends Controller
 
 # Create profile.blade.php file in resource/view/customer folder
 
-<img width="979" height="746" alt="image" src="https://github.com/user-attachments/assets/e0d1ef44-4986-423d-9b0b-c0b00ca15f03" />
+<img width="600" height="300" alt="image" src="https://github.com/user-attachments/assets/e0d1ef44-4986-423d-9b0b-c0b00ca15f03" />
 
  
 # Create aboutus , privacy and terms condition page and this page link adding footer function
