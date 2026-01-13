@@ -10,7 +10,7 @@ class SizeController extends Controller
     // LIST
     public function index()
     {
-        $sizes = Size::latest()->get();
+        $sizes = Size::orderBy('id', 'asc')->get();
         return view('sizes.index', compact('sizes'));
     }
 

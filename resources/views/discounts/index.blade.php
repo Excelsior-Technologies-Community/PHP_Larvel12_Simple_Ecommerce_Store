@@ -172,7 +172,7 @@
                 <td>{{ $discount->end_date ? \Carbon\Carbon::parse($discount->end_date)->format('d-m-Y') : '—' }}</td>
                 <td>
                     <div class="action-column">
-                        <a href="{{ route('discounts.show', $discount->id) }}" class="btn btn-secondary"> View</a>
+                        <!-- <a href="{{ route('discounts.show', $discount->id) }}" class="btn btn-secondary"> View</a> -->
                         <a href="{{ route('discounts.edit', $discount->id) }}" class="btn btn-warning"> Edit</a>
                         <form action="{{ route('discounts.destroy', $discount->id) }}" method="POST" style="display:inline-block;">
                             @csrf @method('DELETE')
