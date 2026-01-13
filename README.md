@@ -459,9 +459,11 @@ Then login → redirect to:
 
 # Resource/view/layouts/admin.blade.php
 
-<img width="325" height="204" alt="image" src="https://github.com/user-attachments/assets/72886bbc-5f68-4c85-ac92-898971a91dab" />
+<img width="700" height="500" alt="image" src="https://github.com/user-attachments/assets/00a165e9-ebcf-4e43-8812-47467421737d" />
 
- <img width="326" height="206" alt="image" src="https://github.com/user-attachments/assets/d350cf41-3242-4ce5-a36f-357e987fa0fe" />
+
+<img width="700" height="500" alt="image" src="https://github.com/user-attachments/assets/03c60c53-b8f1-4f3f-800a-db8589f8b209" />
+
 
  <img width="628" height="300" alt="image" src="https://github.com/user-attachments/assets/bef0a23f-acdc-4a80-8ff6-dacdb903893f" />
 
@@ -816,12 +818,12 @@ Route::middleware('auth:customer')->group(function () {
 });
 
  ```
-<img width="1838" height="878" alt="image" src="https://github.com/user-attachments/assets/5c4d3d02-e79b-4bce-825e-27e75ac51a18" />
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/5c4d3d02-e79b-4bce-825e-27e75ac51a18" />
 
-<img width="1758" height="862" alt="image" src="https://github.com/user-attachments/assets/64ef6d93-76bf-4a25-a93c-bb8479219e17" />
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/64ef6d93-76bf-4a25-a93c-bb8479219e17" />
 
 <img width="628" height="322" alt="image" src="https://github.com/user-attachments/assets/a34d4463-0ece-42de-9e5d-06f6a83fcfcd" />
-<img width="628" height="181" alt="image" src="https://github.com/user-attachments/assets/c3598cc5-f96d-423b-87b2-687ede5c1b33" />
+<img width="628" height="500" alt="image" src="https://github.com/user-attachments/assets/c3598cc5-f96d-423b-87b2-687ede5c1b33" />
 
  
 
