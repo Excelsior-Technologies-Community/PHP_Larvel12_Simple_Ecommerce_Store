@@ -140,7 +140,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->update([
-            'status' => 'deleted' // ✅ SOFT DELETE
+            'status' => 'deleted' // 
         ]);
 
         return redirect()->route('products.index')

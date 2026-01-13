@@ -16,7 +16,7 @@
 <table class="table table-bordered table-striped">
     <thead class="table-dark">
         <tr>
-            <th>#</th>
+            <th>No</th>
             <th>Category Name</th>
             <th width="150">Action</th>
         </tr>

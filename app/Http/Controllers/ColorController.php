@@ -7,7 +7,7 @@ use App\Models\Color;
 class ColorController extends Controller
 {
     public function index() {
-        $colors = Color::latest()->get();
+        $colors = Color::orderBy('id', 'asc')->get();
         return view('colors.index', compact('colors'));
     }
 

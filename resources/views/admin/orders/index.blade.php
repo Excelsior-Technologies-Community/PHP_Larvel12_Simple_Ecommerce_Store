@@ -5,7 +5,7 @@
 <style>
     .order-total-box {
         line-height: 1.4;
-    }
+    }  m       
     .order-total-box .total {
         font-size: 15px;
         font-weight: 700;
