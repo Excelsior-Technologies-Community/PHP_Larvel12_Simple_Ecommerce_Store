@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Helpers\ActivityLogger;
 use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
 {
+    use ActivityLogger;
+
     // ================================
     // ALL ORDERS (ADMIN)
     // ================================
@@ -15,7 +18,7 @@ class AdminOrderController extends Controller
         $search     = $request->search;
         $priceSort = $request->price_sort;
         $status    = $request->status;
-        $date      = $request->date; // ✅ CALENDAR DATE
+        $date      = $request->date;
 
         $orders = Order::with([
             'items.product',
@@ -123,6 +126,14 @@ class AdminOrderController extends Controller
             'status' => $request->status,
         ]);
 
+        $this->logActivity('order_status_updated', $order, "Order #{$order->id} status updated to {$request->status}");
+
         return back()->with('success', 'Order status updated');
+    }
+
+    public function show(Order $order)
+    {
+        $order->load(['items.product', 'items.size', 'items.color', 'items.category', 'address', 'customer', 'cancellation']);
+        return view('admin.orders.show', compact('order'));
     }
 }

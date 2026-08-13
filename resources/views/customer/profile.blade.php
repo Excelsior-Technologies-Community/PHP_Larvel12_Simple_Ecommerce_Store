@@ -1,91 +1,51 @@
 @extends('layouts.customer')
 
-@section('title','My Profile')
+@section('title', 'My Profile')
 
 @section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="glass-card p-5">
+                <h2 class="fw-bold mb-4">My Profile</h2>
 
-<div class="row justify-content-center">
-    <div class="col-md-7">
-
-        <div class="card shadow-lg border-0 rounded-4">
-            <div class="card-body p-4">
-
-                <h3 class="mb-4 fw-bold text-center">My Profile</h3>
-
-                {{-- SUCCESS MESSAGE --}}
                 @if(session('success'))
-                    <div class="alert alert-success">
+                    <div class="alert alert-glass alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
-                <form method="POST"
-                      action="{{ route('customer.profile.update') }}"
-                      enctype="multipart/form-data">
+                <form method="POST" action="{{ route('customer.profile.update') }}" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
 
-                    {{-- PROFILE IMAGE --}}
                     <div class="text-center mb-4">
-                        <img src="{{ $customer->profile_image
-                                ? asset('images/'.$customer->profile_image)
-                                : asset('images/default-user.png') }}"
-                             class="rounded-circle shadow"
-                             width="150"
-                             height="150"
-                             style="object-fit: cover;">
+                        <img src="{{ $customer->profile_image ? asset('images/'.$customer->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($customer->name) . '&background=667eea&color=fff' }}"
+                             alt="Profile"
+                             style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255,255,255,0.6); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div class="mt-3">
+                            <input type="file" name="profile_image" class="form-control glass-form-control" accept="image/*">
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Profile Image</label>
-                        <input type="file"
-                               name="profile_image"
-                               class="form-control">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" value="{{ old('name', $customer->name) }}" class="form-control glass-form-control" required>
+                        @error('name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
-                    {{-- NAME --}}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Full Name</label>
-                        <input type="text"
-                               name="name"
-                               class="form-control"
-                               value="{{ $customer->name }}"
-                               required>
+                        <label class="form-label">Email Address</label>
+                        <input type="email" value="{{ $customer->email }}" class="form-control glass-form-control" disabled>
                     </div>
 
-                    {{-- EMAIL --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Email Address</label>
-                        <input type="email"
-                               class="form-control"
-                               value="{{ $customer->email }}"
-                               disabled>
-                    </div>
-
-                    {{-- ACTION BUTTON --}}
-                    <button class="btn btn-primary w-100 mb-3">
-                        Update Profile
-                    </button>
+                    <button type="submit" class="btn btn-primary-glass">Update Profile</button>
                 </form>
-
-                <hr>
-
-                {{-- QUICK ACTIONS --}}
-                <div class="d-flex justify-content-between flex-wrap gap-2">
-                    <a href="{{ route('customer.orders') }}"
-                       class="btn btn-outline-primary w-100 w-md-auto">
-                         My Orders
-                    </a>
-
-                    <a href="{{ route('cart.index') }}"
-                       class="btn btn-outline-success w-100 w-md-auto">
-                        View Cart
-                    </a>
-                </div>
-
             </div>
         </div>
-
     </div>
 </div>
-
 @endsection

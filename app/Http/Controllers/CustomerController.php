@@ -30,6 +30,7 @@ public function index(Request $request)
 
     // 🔹 PRODUCT SEARCH
      $products = Product::where('status', 'active')
+        ->inStock()
         ->when($search, function ($query) use (
             $search,
             $sizeIds,
@@ -77,13 +78,17 @@ public function index(Request $request)
     $isCustomerLoggedIn = auth('customer')->check();
     $customer = auth('customer')->user();
 
+    // Compare products
+    $compareIds = session('compare_ids', []);
+
     return view('customer.index', compact(
         'products',
         'sizes',
         'colors',
         'categories',
         'isCustomerLoggedIn',
-        'customer'
+        'customer',
+        'compareIds'
     ));
 }
 

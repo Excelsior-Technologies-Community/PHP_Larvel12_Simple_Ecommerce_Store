@@ -62,10 +62,10 @@
 <div class="container-box">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h2>Edit Discount</h2>
-        <a href="{{ route('discounts.index') }}" class="btn btn-secondary">⬅ Back</a>
+        <a href="{{ route('admin.discounts.index') }}" class="btn btn-secondary">⬅ Back</a>
     </div>
 
-    <form action="{{ route('discounts.update', $discount->id) }}" method="POST" style="margin-top:20px;">
+    <form action="{{ route('admin.discounts.update', $discount->id) }}" method="POST" style="margin-top:20px;">
         @csrf
         @method('PUT')
 

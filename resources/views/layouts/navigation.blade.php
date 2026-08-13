@@ -5,7 +5,7 @@
             {{-- LEFT --}}
             <div class="flex items-center">
                 {{-- LOGO --}}
-                <a href="{{ route('products.index') }}"
+                <a href="{{ route('admin.products.index') }}"
                    class="text-lg font-bold text-gray-800">
                      Admin Panel
                 </a>
@@ -13,31 +13,31 @@
                 {{-- LINKS (DESKTOP) --}}
                 <div class="hidden sm:flex sm:space-x-8 sm:ms-10">
                     <x-nav-link
-        :href="route('products.index')"
+        :href="route('admin.products.index')"
         :active="request()->routeIs('products.*')">
         Products
     </x-nav-link>
 
     <x-nav-link
-        :href="route('sizes.index')"
+        :href="route('admin.sizes.index')"
         :active="request()->routeIs('sizes.*')">
         Sizes
     </x-nav-link>
 
     <x-nav-link
-        :href="route('colors.index')"
+        :href="route('admin.colors.index')"
         :active="request()->routeIs('colors.*')">
         Colors
     </x-nav-link>
 
     <x-nav-link
-        :href="route('categories.index')"
+        :href="route('admin.categories.index')"
         :active="request()->routeIs('categories.*')">
         Categories
     </x-nav-link>
 
     <x-nav-link
-        :href="route('discounts.index')"
+        :href="route('admin.discounts.index')"
         :active="request()->routeIs('discounts.*')">
         Discounts
     </x-nav-link>
@@ -49,7 +49,7 @@
     </x-nav-link>
 
     {{-- 🔵 ADD PRODUCT BUTTON STYLE --}}
-    <a href="{{ route('products.create') }}"
+    <a href="{{ route('admin.products.create') }}"
        class="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition">
         + Add Product
     </a>
@@ -125,7 +125,7 @@
         <div class="pt-2 pb-3 space-y-1">
 
             <x-responsive-nav-link
-                :href="route('products.index')"
+                :href="route('admin.products.index')"
                 :active="request()->routeIs('products.*')">
                 Products
             </x-responsive-nav-link>
@@ -137,7 +137,7 @@
             </x-responsive-nav-link>
 
             <x-responsive-nav-link
-                :href="route('discounts.index')"
+                :href="route('admin.discounts.index')"
                 :active="request()->routeIs('discounts.*')">
                 Discounts
             </x-responsive-nav-link>

@@ -1,44 +1,40 @@
 @extends('layouts.admin')
 
+@section('title', 'Manage Sizes')
+
 @section('content')
-
-<div class="d-flex justify-content-between mb-3">
-    <h2>Size List</h2>
-    <a href="{{ route('sizes.create') }}" class="btn btn-primary">Add Size</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Sizes</h2>
+    <a href="{{ route('admin.sizes.create') }}" class="btn btn-primary-glass">+ Add Size</a>
 </div>
 
-@if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
+<div class="glass-card p-4">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Size Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($sizes as $key => $size)
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td><strong>{{ $size->size_name }}</strong></td>
+                        <td>
+                            <a href="{{ route('admin.sizes.edit', $size) }}" class="btn btn-sm btn-glass">Edit</a>
+                            <form action="{{ route('admin.sizes.destroy', $size) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
-@endif
-
-<table class="table table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>No</th>
-            <th>Size Name</th>
-            <th width="150">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($sizes as $key => $size)
-        <tr>
-            <td>{{ $key + 1 }}</td>
-            <td>{{ $size->size_name }}</td>
-            <td>
-                <a href="{{ route('sizes.edit',$size->id) }}" class="btn btn-warning btn-sm">Edit</a>
-
-                <form action="{{ route('sizes.destroy',$size->id) }}"
-                      method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger btn-sm">Delete</button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-
 @endsection

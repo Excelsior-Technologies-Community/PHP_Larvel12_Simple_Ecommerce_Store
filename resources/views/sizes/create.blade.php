@@ -1,20 +1,37 @@
 @extends('layouts.admin')
 
+@section('title', 'Add Size')
+
 @section('content')
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card p-5">
+            <h2 class="fw-bold mb-4">Add Size</h2>
 
-<h2 class="mb-4">Add Size</h2>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-<form action="{{ route('sizes.store') }}" method="POST">
-@csrf
+            <form action="{{ route('admin.sizes.store') }}" method="POST">
+                @csrf
 
-<div class="mb-3">
-    <label class="form-label">Size Name</label>
-    <input type="text" name="size_name" class="form-control">
+                <div class="mb-3">
+                    <label class="form-label">Size Name</label>
+                    <input type="text" name="size_name" value="{{ old('size_name') }}" class="form-control glass-form-control" required>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary-glass">Save Size</button>
+                    <a href="{{ route('admin.sizes.index') }}" class="btn btn-glass">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-
-<button class="btn btn-success">Save</button>
-<a href="{{ route('sizes.index') }}" class="btn btn-secondary">Back</a>
-
-</form>
-
 @endsection

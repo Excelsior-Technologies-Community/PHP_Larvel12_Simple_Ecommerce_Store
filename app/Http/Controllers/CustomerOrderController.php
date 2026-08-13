@@ -81,4 +81,23 @@ class CustomerOrderController extends Controller
             'status'
         ));
     }
+
+    public function show(Order $order)
+    {
+        $customerId = auth('customer')->id();
+
+        if ($order->customer_id !== $customerId) {
+            abort(403);
+        }
+
+        $order->load([
+            'items.product',
+            'items.size',
+            'items.color',
+            'items.category',
+            'address'
+        ]);
+
+        return view('customer.orders.show', compact('order'));
+    }
 }

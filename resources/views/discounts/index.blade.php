@@ -107,8 +107,8 @@
     <div class="header">
         <h2> Discounts</h2>
         <div class="action-buttons">
-            <a href="{{ route('products.index') }}" class="btn btn-secondary"> Back</a>
-            <a href="{{ route('discounts.create') }}" class="btn btn-primary"> Add Discount</a>
+            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary"> Back</a>
+            <a href="{{ route('admin.discounts.create') }}" class="btn btn-primary"> Add Discount</a>
         </div>
     </div>
 
@@ -172,9 +172,9 @@
                 <td>{{ $discount->end_date ? \Carbon\Carbon::parse($discount->end_date)->format('d-m-Y') : '—' }}</td>
                 <td>
                     <div class="action-column">
-                        <!-- <a href="{{ route('discounts.show', $discount->id) }}" class="btn btn-secondary"> View</a> -->
-                        <a href="{{ route('discounts.edit', $discount->id) }}" class="btn btn-warning"> Edit</a>
-                        <form action="{{ route('discounts.destroy', $discount->id) }}" method="POST" style="display:inline-block;">
+                        <a href="{{ route('admin.discounts.show', $discount->id) }}" class="btn btn-secondary"> View</a>
+                        <a href="{{ route('admin.discounts.edit', $discount->id) }}" class="btn btn-warning"> Edit</a>
+                        <form action="{{ route('admin.discounts.destroy', $discount->id) }}" method="POST" style="display:inline-block;">
                             @csrf @method('DELETE')
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')"> Delete</button>
                         </form>

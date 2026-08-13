@@ -77,10 +77,10 @@ body {
 <div class="container-box">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h2>{{ isset($discount) ? 'Edit Discount' : 'Add Discount' }}</h2>
-        <a href="{{ route('discounts.index') }}" class="btn btn-secondary">⬅ Back</a>
+        <a href="{{ route('admin.discounts.index') }}" class="btn btn-secondary">⬅ Back</a>
     </div>
 
-    <form action="{{ isset($discount) ? route('discounts.update', $discount->id) : route('discounts.store') }}" method="POST" style="margin-top:20px;">
+    <form action="{{ isset($discount) ? route('admin.discounts.update', $discount->id) : route('admin.discounts.store') }}" method="POST" style="margin-top:20px;">
         @csrf
         @if(isset($discount)) @method('PUT') @endif
 

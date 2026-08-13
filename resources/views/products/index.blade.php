@@ -1,160 +1,85 @@
 @extends('layouts.admin')
 
+@section('title', 'Manage Products')
+
 @section('content')
-
-{{-- 🔹 HEADER --}}
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h2 class="mb-0">Product List</h2>
-
-    <!-- <div class="d-flex gap-2">
-
-     <a href="{{ route('admin.orders.index') }}" class="btn btn-dark">
-            All Orders
-        </a>
-        <a href="{{ route('discounts.index') }}" class="btn btn-secondary">Discounts</a>
-        <a href="{{ route('sizes.index') }}" class="btn btn-info">
-           Sizes
-        </a>
-
-        <a href="{{ route('colors.index') }}" class="btn btn-warning">
-           Colors
-        </a>
-
-        <a href="{{ route('categories.index') }}" class="btn btn-success">
-           Categories
-        </a>
-
-        <a href="{{ route('products.create') }}" class="btn btn-primary">
-            Add Product
-        </a>
-    </div> -->
-</div>
-
-
-{{-- 🔹 SUCCESS MESSAGE --}}
-@if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
-@endif
-
-{{-- 🔹 SEARCH FORM --}}
-<form method="GET" action="{{ route('products.index') }}" class="mb-3">
-    <div class="row g-2">
-        <div class="col-md-4">
-            <input type="text"
-                   name="search"
-                   value="{{ request('search') }}"
-                   class="form-control"
-                   placeholder="Search by name, details, price...">
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-primary">Search</button>
-            <a href="{{ route('products.index') }}" class="btn btn-secondary">
-                Reset
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex gap-2">
+            <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control glass-form-control" placeholder="Search products..." style="width: 300px;">
+            <button type="submit" class="btn btn-primary-glass">Search</button>
+        </form>
     </div>
-</form>
-
-{{-- 🔹 PRODUCT TABLE --}}
-<table class="table table-bordered table-striped align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>No</th>
-            <th>Name</th>
-            <th>Details</th>
-            <th>Price</th>
-            <th>Sizes</th>
-            <th>Colors</th>
-            <th>Categories</th>
-            <th>Image</th>
-            <th width="180">Action</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @forelse($products as $product)
-        <tr>
-            {{-- ✅ SERIAL NO (pagination safe) --}}
-            <td>
-                {{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}
-            </td>
-
-            <td>{{ $product->name }}</td>
-            <td>{{ $product->details }}</td>
-            <td>₹ {{ $product->price }}</td>
-
-            {{-- ✅ Sizes --}}
-            <td>
-                @forelse($product->sizes ?? [] as $sizeId)
-                    <span class="badge bg-info text-dark me-1">
-                        {{ $sizes[$sizeId] ?? 'N/A' }}
-                    </span>
-                @empty
-                    <span class="text-muted">-</span>
-                @endforelse
-            </td>
-
-            {{-- ✅ Colors --}}
-            <td>
-                @forelse($product->colors ?? [] as $colorId)
-                    <span class="badge bg-warning text-dark me-1">
-                        {{ $colors[$colorId] ?? 'N/A' }}
-                    </span>
-                @empty
-                    <span class="text-muted">-</span>
-                @endforelse
-            </td>
-
-            {{-- ✅ Categories --}}
-            <td>
-                @forelse($product->categories ?? [] as $catId)
-                    <span class="badge bg-success me-1">
-                        {{ $categories[$catId] ?? 'N/A' }}
-                    </span>
-                @empty
-                    <span class="text-muted">-</span>
-                @endforelse
-            </td>
-
-            <td>
-                <img src="{{ asset('images/'.$product->image) }}"
-                     width="80"
-                     class="rounded">
-            </td>
-
-            <td>
-                <a href="{{ route('products.edit',$product->id) }}"
-                   class="btn btn-warning btn-sm">
-                    Edit
-                </a>
-
-                <form action="{{ route('products.destroy',$product->id) }}"
-                      method="POST"
-                      class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger btn-sm"
-                            onclick="return confirm('Are you sure?')">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="9" class="text-center text-muted">
-                No products found
-            </td>
-        </tr>
-        @endforelse
-    </tbody>
-</table>
-
-{{-- 🔹 PAGINATION --}}
-<div class="d-flex justify-content-center mt-3">
-    {{ $products->links('pagination::bootstrap-5') }}
+    <a href="{{ route('admin.products.create') }}" class="btn btn-primary-glass">+ Add Product</a>
 </div>
 
+<div class="glass-card p-4">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($products as $product)
+                    <tr>
+                        <td>
+                            <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('images/'.$product->image) }}"
+                                 alt="{{ $product->name }}"
+                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
+                                 onerror="this.src='https://via.placeholder.com/50x50?text=N/A'">
+                        </td>
+                        <td>
+                            <strong>{{ $product->name }}</strong>
+                            <br><small class="text-muted">{{ $product->sku ?? 'No SKU' }}</small>
+                        </td>
+                        <td>₹ {{ number_format($product->price, 2) }}</td>
+                        <td>
+                            @if($product->variants()->exists())
+                                <span class="badge badge-glass">{{ $product->variants->sum('stock_quantity') }} units</span>
+                            @else
+                                <span class="badge {{ $product->stock_quantity > 0 ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $product->stock_quantity }} units
+                                </span>
+                            @endif
+                        </td>
+                        <td>
+                            <span class="badge {{ $product->status == 'active' ? 'bg-success' : 'bg-danger' }}">
+                                {{ ucfirst($product->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-sm btn-glass">Edit</a>
+                            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="text-center text-muted py-4">No products found</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <a href="{{ route('admin.products.export') }}" class="btn btn-glass btn-sm">Export Excel</a>
+            <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="d-inline">
+                @csrf
+                <input type="file" name="file" class="form-control d-inline" style="width: auto;" required>
+                <button type="submit" class="btn btn-sm btn-primary-glass">Import</button>
+            </form>
+        </div>
+        {{ $products->links('pagination::bootstrap-5') }}
+    </div>
+</div>
 @endsection

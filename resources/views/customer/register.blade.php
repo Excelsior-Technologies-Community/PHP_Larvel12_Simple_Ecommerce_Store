@@ -1,72 +1,65 @@
-@extends('layouts.app')
+@extends('layouts.customer')
 
-@section('title','Create Account')
+@section('title', 'Customer Register')
 
 @section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Create Account</h2>
+                    <p class="text-muted">Join us for a great shopping experience</p>
+                </div>
 
-<div class="auth-box row g-0">
+                @if(session('success'))
+                    <div class="alert alert-glass alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-    {{-- LEFT --}}
-    <div class="col-md-6 auth-left d-flex flex-column justify-content-center">
-        <div class="brand mb-3">EcommercePlatform</div>
-        <p class="text-muted">
-            Join us and experience seamless shopping, secure payments,
-            and fast delivery — all in one place.
-        </p>
+                <form method="POST" action="{{ route('customer.register.post') }}">
+                    @csrf
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control glass-form-control" required>
+                        @error('name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-        <ul class="text-muted small mt-3">
-            <li>✔ Secure checkout</li>
-            <li>✔ Track your orders</li>
-            <li>✔ Easy returns</li>
-        </ul>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control glass-form-control" required>
+                        @error('email')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control glass-form-control" required>
+                        @error('password')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" name="password_confirmation" class="form-control glass-form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-glass w-100 mb-3">Register</button>
+                </form>
+
+                <div class="text-center">
+                    <p class="small text-muted">
+                        Already have an account? <a href="{{ route('customer.login') }}" class="text-decoration-none fw-bold">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-
-    {{-- RIGHT --}}
-    <div class="col-md-6 auth-right">
-        <h3 class="mb-1">Create Account</h3>
-        <p class="text-muted small mb-4">Get started in less than a minute</p>
-
-        @if ($errors->any())
-            <div class="alert alert-danger small">
-                {{ $errors->first() }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('customer.register.post') }}">
-            @csrf
-
-            <div class="mb-3">
-                <input type="text" name="name" class="form-control"
-                       placeholder="Full Name" required>
-            </div>
-
-            <div class="mb-3">
-                <input type="email" name="email" class="form-control"
-                       placeholder="Email Address" required>
-            </div>
-
-            <div class="mb-3">
-                <input type="password" name="password" class="form-control"
-                       placeholder="Password" required>
-            </div>
-
-            <div class="mb-3">
-                <input type="password" name="password_confirmation"
-                       class="form-control"
-                       placeholder="Confirm Password" required>
-            </div>
-
-            <button class="btn btn-primary w-100 mt-2">
-                Create Account
-            </button>
-
-            <div class="text-center mt-3 small-link">
-                <span class="text-muted">Already have an account?</span>
-                <a href="{{ route('customer.login') }}">Login</a>
-            </div>
-        </form>
-    </div>
-
 </div>
-
 @endsection

@@ -6,10 +6,13 @@ use App\Models\Product;
 use App\Models\Size;
 use App\Models\Color;
 use App\Models\Category;
+use App\Helpers\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    use ActivityLogger;
+
     // ================================
     // LIST (ONLY ACTIVE PRODUCTS)
     // ================================
@@ -18,6 +21,7 @@ class ProductController extends Controller
         $search = $request->search;
 
         $products = Product::where('status', 'active') // ✅ IMPORTANT
+            ->inStock()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -72,7 +76,7 @@ class ProductController extends Controller
         $imageName = time().'.'.$request->image->extension();
         $request->image->move(public_path('images'), $imageName);
 
-        Product::create([
+        $product = Product::create([
             'name'       => $request->name,
             'details'    => $request->details,
             'price'      => $request->price,
@@ -82,6 +86,8 @@ class ProductController extends Controller
             'categories' => $request->categories,
             'status'     => 'active', // ✅ DEFAULT
         ]);
+
+        $this->logActivity('product_created', $product, "Product '{$product->name}' created");
 
         return redirect()->route('products.index')
             ->with('success', 'Product added successfully');
@@ -121,6 +127,7 @@ class ProductController extends Controller
             $product->image = $imageName;
         }
 
+        $oldPrice = $product->price;
         $product->update([
             'name'       => $request->name,
             'details'    => $request->details,
@@ -129,6 +136,13 @@ class ProductController extends Controller
             'colors'     => $request->colors,
             'categories' => $request->categories,
         ]);
+
+        $changes = [];
+        if ($oldPrice != $request->price) {
+            $changes['price'] = "{$oldPrice} -> {$request->price}";
+        }
+
+        $this->logActivity('product_updated', $product, "Product '{$product->name}' updated", $changes);
 
         return redirect()->route('products.index')
             ->with('success', 'Product updated successfully');
@@ -142,6 +156,8 @@ class ProductController extends Controller
         $product->update([
             'status' => 'deleted' // 
         ]);
+
+        $this->logActivity('product_deleted', $product, "Product '{$product->name}' deleted");
 
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully');

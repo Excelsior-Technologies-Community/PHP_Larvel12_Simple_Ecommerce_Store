@@ -1,30 +1,37 @@
 @extends('layouts.admin')
 
+@section('title', 'Add Color')
+
 @section('content')
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card p-5">
+            <h2 class="fw-bold mb-4">Add Color</h2>
 
-<h2 class="mb-4">Add Color</h2>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
+            <form action="{{ route('admin.colors.store') }}" method="POST">
+                @csrf
+
+                <div class="mb-3">
+                    <label class="form-label">Color Name</label>
+                    <input type="text" name="color_name" value="{{ old('color_name') }}" class="form-control glass-form-control" required>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary-glass">Save Color</button>
+                    <a href="{{ route('admin.colors.index') }}" class="btn btn-glass">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-@endif
-
-<form action="{{ route('colors.store') }}" method="POST">
-@csrf
-
-<div class="mb-3">
-    <label class="form-label">Color Name</label>
-    <input type="text" name="color_name" value="{{ old('color_name') }}" class="form-control">
-</div>
-
-<button class="btn btn-success">Save</button>
-<a href="{{ route('colors.index') }}" class="btn btn-secondary">Back</a>
-
-</form>
-
 @endsection

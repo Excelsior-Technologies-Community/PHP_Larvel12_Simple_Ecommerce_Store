@@ -23,14 +23,19 @@ class CustomerProfileController extends Controller
 
         // ✅ Image Upload
         if ($request->hasFile('profile_image')) {
+            $imagePath = public_path('images');
 
-            // delete old image
-            if ($customer->profile_image && file_exists(public_path('images/'.$customer->profile_image))) {
-                unlink(public_path('images/'.$customer->profile_image));
+            if (!file_exists($imagePath)) {
+                mkdir($imagePath, 0755, true);
             }
 
-            $imageName = time().'_'.$request->profile_image->getClientOriginalName();
-            $request->profile_image->move(public_path('images'), $imageName);
+            // delete old image
+            if ($customer->profile_image && file_exists($imagePath.'/'.$customer->profile_image)) {
+                @unlink($imagePath.'/'.$customer->profile_image);
+            }
+
+            $imageName = time().'_'.uniqid().'_'.$request->profile_image->getClientOriginalName();
+            $request->profile_image->move($imagePath, $imageName);
 
             $customer->profile_image = $imageName;
         }

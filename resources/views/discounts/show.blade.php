@@ -80,7 +80,7 @@
         <div class="detail-value">{{ $discount->updated_at->format('d M, Y H:i') }}</div>
     </div>
 
-    <a href="{{ route('discounts.index') }}" class="back-btn">⬅ Back to Discounts</a>
+    <a href="{{ route('admin.discounts.index') }}" class="back-btn">⬅ Back to Discounts</a>
 </div>
 
 @endsection

@@ -10,187 +10,151 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Discount;
+use App\Models\Coupon;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\StockHistory;
 use Illuminate\Http\Request;
-use Razorpay\Api\Api;
 use Carbon\Carbon;
 
 class CheckoutController extends Controller
 {
     // ==============================
-    // ✅ PAYMENT PAGE (GET)
+    // ✅ APPLY COUPON
     // ==============================
-    public function paymentPage()
-    {
-        $customerId = auth('customer')->id();
-        $address = session('checkout_address');
-
-        if (!$address) {
-            return redirect()->route('customer.products')
-                ->with('error', 'Invalid checkout session');
-        }
-
-        $cartItems = Cart::with('product')
-            ->where('customer_id', $customerId)
-            ->get();
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('customer.products')
-                ->with('error', 'Cart is empty');
-        }
-
-        $sizes = Size::pluck('size_name', 'id');
-        $colors = Color::pluck('color_name', 'id');
-        $categories = Category::pluck('category_name', 'id');
-
-        // 🔥 DISCOUNT LOGIC
-        $cartProductIds = $cartItems->pluck('product_id')->toArray();
-        $today = Carbon::today();
-
-        $allProductDiscounts = Discount::where('apply_to', 'all_products')
-            ->where(function ($q) use ($today) {
-                $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
-            })
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
-            })
-            ->get();
-
-        $specificDiscounts = Discount::where('apply_to', 'specific_product')
-            ->get()
-            ->filter(function ($discount) use ($cartProductIds) {
-                $ids = json_decode($discount->product_ids, true) ?? [];
-                return count(array_intersect($ids, $cartProductIds)) > 0;
-            });
-
-        return view('checkout.payment', compact(
-            'address',
-            'cartItems',
-            'sizes',
-            'colors',
-            'categories',
-            'allProductDiscounts',
-            'specificDiscounts'
-        ));
-    }
-
-    // ==============================
-    // ✅ RAZORPAY ORDER CREATE
-    // ==============================
-    public function razorpayOrder(Request $request)
-    {
-        $amount = (float) $request->amount;
-
-        if ($amount <= 0) {
-            return response()->json(['error' => 'Invalid amount'], 400);
-        }
-
-        $api = new Api(
-            config('services.razorpay.key'),
-            config('services.razorpay.secret')
-        );
-
-        $order = $api->order->create([
-            'receipt'  => 'order_' . time(),
-            'amount'   => $amount * 100,
-            'currency' => 'INR'
-        ]);
-
-        return response()->json([
-            'order_id' => $order['id'],
-            'amount'   => $amount,
-            'key'      => config('services.razorpay.key')
-        ]);
-    }
-
-    // ==============================
-    // ✅ RAZORPAY VERIFY
-    // ==============================
-    public function razorpayVerify(Request $request)
+    public function applyCoupon(Request $request)
     {
         $request->validate([
-            'razorpay_order_id'   => 'required',
-            'razorpay_payment_id' => 'required',
-            'razorpay_signature'  => 'required',
+            'coupon_code' => 'required|string',
         ]);
 
-        $api = new Api(
-            config('services.razorpay.key'),
-            config('services.razorpay.secret')
-        );
+        $customerId = auth('customer')->id();
+        $coupon = Coupon::where('code', $request->coupon_code)->first();
 
-        try {
-            $api->utility->verifyPaymentSignature([
-                'razorpay_order_id'   => $request->razorpay_order_id,
-                'razorpay_payment_id' => $request->razorpay_payment_id,
-                'razorpay_signature'  => $request->razorpay_signature,
-            ]);
-
-            $request->merge(['payment_method' => 'ONLINE']);
-            return $this->placeOrder($request);
-
-        } catch (\Exception $e) {
-            return redirect()->route('checkout.payment')
-                ->with('error', 'Payment verification failed');
+        if (!$coupon) {
+            return back()->withErrors(['coupon_code' => 'Invalid coupon code']);
         }
+
+        if (!$coupon->isValid()) {
+            return back()->withErrors(['coupon_code' => 'This coupon has expired']);
+        }
+
+        if (!$coupon->canBeUsedBy(auth('customer')->user())) {
+            return back()->withErrors(['coupon_code' => 'You have already used this coupon']);
+        }
+
+        $cartItems = Cart::where('customer_id', $customerId)->get();
+        $subtotal = $cartItems->sum(fn ($i) => $i->price * $i->quantity);
+
+        if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
+            return back()->withErrors(['coupon_code' => "Minimum order amount is {$coupon->min_order_amount}"]);
+        }
+
+        $discount = 0;
+        if ($coupon->type === 'percentage') {
+            $discount = ($subtotal * $coupon->value) / 100;
+            if ($coupon->max_discount_amount) {
+                $discount = min($discount, $coupon->max_discount_amount);
+            }
+        } else {
+            $discount = min($coupon->value, $subtotal);
+        }
+
+        session([
+            'applied_coupon' => [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'type' => $coupon->type,
+                'value' => $coupon->value,
+                'discount' => $discount,
+            ]
+        ]);
+
+        return back()->with('success', "Coupon '{$coupon->code}' applied! You saved ₹{$discount}");
     }
 
     // ==============================
-    // ✅ PLACE ORDER (COD + ONLINE)
+    // ✅ REMOVE COUPON
+    // ==============================
+    public function removeCoupon()
+    {
+        session()->forget('applied_coupon');
+        return back()->with('success', 'Coupon removed');
+    }
+
+    // ==============================
+    // ✅ PLACE ORDER (NO PAYMENT)
     // ==============================
     public function placeOrder(Request $request)
     {
         $customerId = auth('customer')->id();
 
         $request->validate([
-            'payment_method' => 'required|in:COD,ONLINE',
+            'address_id' => 'required|exists:addresses,id',
         ]);
 
-        $discount = (float) ($request->discount ?? 0);
+        $discountAmount = 0;
+        $couponId = null;
 
-        $sessionAddress = session('checkout_address');
-        if (!$sessionAddress) {
-            return redirect()->route('address.index')
-                ->with('error', 'Please select address again');
+        // Check for coupon
+        if (session('applied_coupon')) {
+            $coupon = Coupon::find(session('applied_coupon.id'));
+            if ($coupon && $coupon->isValid()) {
+                $discountAmount += session('applied_coupon.discount');
+                $couponId = $coupon->id;
+                $coupon->increment('used_count');
+            }
+            session()->forget('applied_coupon');
         }
 
-        $address = Address::where('customer_id', $customerId)
-            ->where('address', $sessionAddress['address'])
-            ->where('city', $sessionAddress['city'])
-            ->where('state', $sessionAddress['state'])
-            ->where('pincode', $sessionAddress['pincode'])
+        // Check for auto discounts
+        $cartItems = Cart::with('product')->where('customer_id', $customerId)->get();
+        $subtotal = $cartItems->sum(fn ($i) => $i->price * $i->quantity);
+
+        $today = Carbon::today();
+        $autoDiscount = Discount::where('apply_to', 'all_products')
+            ->where(function ($q) use ($today) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+            })
+            ->first();
+
+        if ($autoDiscount) {
+            if ($autoDiscount->apply_on === 'percentage') {
+                $discountAmount += ($subtotal * $autoDiscount->value) / 100;
+            } else {
+                $discountAmount += $autoDiscount->value;
+            }
+        }
+
+        $address = Address::where('id', $request->address_id)
+            ->where('customer_id', $customerId)
             ->firstOrFail();
 
-        $cartItems = Cart::where('customer_id', $customerId)->get();
         if ($cartItems->isEmpty()) {
             return redirect()->route('customer.products')
                 ->with('error', 'Cart is empty');
         }
 
-        // 🔢 TOTALS
-        $subtotal = $cartItems->sum(fn ($i) => $i->price * $i->quantity);
-        $finalTotal = max($subtotal - $discount, 0);
+        $finalTotal = max($subtotal - $discountAmount, 0);
 
-        // 🧾 CREATE ORDER
         $order = Order::create([
             'customer_id'     => $customerId,
             'address_id'      => $address->id,
+            'coupon_id'       => $couponId,
             'subtotal'        => $subtotal,
-            'discount_amount' => $discount,
+            'discount_amount' => $discountAmount,
             'total_price'     => $finalTotal,
-            'payment_method'  => $request->payment_method,
-             'status'          => $request->payment_method === 'ONLINE'
-                            ? 'paid'
-                            : 'pending',
+            'payment_method'  => 'COD',
+            'payment_status'  => 'pending',
+            'status'          => 'pending',
         ]);
 
-        // 🧾 ORDER ITEMS (PROPORTIONAL DISCOUNT)
         foreach ($cartItems as $item) {
-
             $itemSubtotal = $item->price * $item->quantity;
-
-            $itemDiscount = $subtotal > 0
-                ? round(($itemSubtotal / $subtotal) * $discount, 2)
-                : 0;
+            $itemDiscount = $subtotal > 0 ? round(($itemSubtotal / $subtotal) * $discountAmount, 2) : 0;
 
             OrderItem::create([
                 'order_id'        => $order->id,
@@ -203,11 +167,50 @@ class CheckoutController extends Controller
                 'discount_amount' => $itemDiscount,
                 'total'           => $itemSubtotal - $itemDiscount,
             ]);
-        }
 
-        // 🧹 CLEAR
+            $product = Product::find($item->product_id);
+            if ($product) {
+                if ($product->variants()->exists()) {
+                    $variant = ProductVariant::where('product_id', $item->product_id)
+                        ->where('size_id', $item->size_id)
+                        ->where('color_id', $item->color_id)
+                        ->where('category_id', $item->category_id)
+                        ->first();
+
+                    if ($variant) {
+                        $previousStock = $variant->stock_quantity;
+                        $variant->decrement('stock_quantity', $item->quantity);
+
+                        StockHistory::create([
+                            'product_id' => $item->product_id,
+                            'variant_id' => $variant->id,
+                            'type' => 'out',
+                            'quantity' => $item->quantity,
+                            'previous_stock' => $previousStock,
+                            'new_stock' => $variant->fresh()->stock_quantity,
+                            'reference_type' => Order::class,
+                            'reference_id' => $order->id,
+                            'notes' => 'Order #' . $order->id,
+                        ]);
+                    }
+                } else {
+                    $previousStock = $product->stock_quantity;
+                    $product->decrement('stock_quantity', $item->quantity);
+
+                    StockHistory::create([
+                        'product_id' => $item->product_id,
+                        'type' => 'out',
+                        'quantity' => $item->quantity,
+                        'previous_stock' => $previousStock,
+                        'new_stock' => $product->fresh()->stock_quantity,
+                        'reference_type' => Order::class,
+                        'reference_id' => $order->id,
+                        'notes' => 'Order #' . $order->id,
+                    ]);
+                }
+            }
+        }
         Cart::where('customer_id', $customerId)->delete();
-        session()->forget('checkout_address');
 
         return redirect()->route('order.success');
     }

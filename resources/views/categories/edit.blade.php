@@ -1,33 +1,38 @@
 @extends('layouts.admin')
 
+@section('title', 'Edit Category')
+
 @section('content')
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card p-5">
+            <h2 class="fw-bold mb-4">Edit Category</h2>
 
-<h2 class="mb-4">Edit Category</h2>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
+            <form action="{{ route('admin.categories.update', $category) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-3">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" name="category_name" value="{{ old('category_name', $category->category_name) }}" class="form-control glass-form-control" required>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary-glass">Update Category</button>
+                    <a href="{{ route('admin.categories.index') }}" class="btn btn-glass">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-@endif
-
-<form action="{{ route('categories.update',$category->id) }}" method="POST">
-@csrf
-@method('PUT')
-
-<div class="mb-3">
-    <label class="form-label">Category Name</label>
-    <input type="text" name="category_name"
-           value="{{ old('category_name', $category->category_name) }}"
-           class="form-control">
-</div>
-
-<button class="btn btn-primary">Update</button>
-<a href="{{ route('categories.index') }}" class="btn btn-secondary">Back</a>
-
-</form>
-
 @endsection

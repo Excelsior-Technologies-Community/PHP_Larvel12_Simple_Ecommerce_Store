@@ -9,7 +9,7 @@ use App\Models\Customer;
 class Cart extends Model
 {
     protected $fillable = [
-        'customer_id',   // ✅ ADD
+        'customer_id',
         'product_id',
         'size_id',
         'color_id',
@@ -18,13 +18,11 @@ class Cart extends Model
         'price',
     ];
 
-    // 🔗 Product relation
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
-    // 🔗 Customer relation
     public function customer()
     {
         return $this->belongsTo(Customer::class);
