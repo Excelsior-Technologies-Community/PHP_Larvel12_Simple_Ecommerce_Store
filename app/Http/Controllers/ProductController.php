@@ -14,22 +14,23 @@ class ProductController extends Controller
     use ActivityLogger;
 
     // ================================
-    // LIST (ONLY ACTIVE PRODUCTS)
+    // LIST ACTIVE PRODUCTS
     // ================================
+
     public function index(Request $request)
     {
         $search = $request->search;
 
-        $products = Product::where('status', 'active') // ✅ IMPORTANT
+        $products = Product::where('status', 'active')
             ->inStock()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('details', 'like', "%{$search}%")
-                      ->orWhere('price', 'like', "%{$search}%");
+                        ->orWhere('details', 'like', "%{$search}%")
+                        ->orWhere('price', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('id', 'asc')   // OLD → NEW
+            ->orderBy('id', 'asc')
             ->paginate(5)
             ->withQueryString();
 
@@ -47,8 +48,9 @@ class ProductController extends Controller
     }
 
     // ================================
-    // CREATE FORM
+    // CREATE
     // ================================
+
     public function create()
     {
         return view('products.create', [
@@ -59,8 +61,9 @@ class ProductController extends Controller
     }
 
     // ================================
-    // STORE (DEFAULT STATUS = ACTIVE)
+    // STORE
     // ================================
+
     public function store(Request $request)
     {
         $request->validate([
@@ -73,8 +76,22 @@ class ProductController extends Controller
             'categories' => 'required|array',
         ]);
 
-        $imageName = time().'.'.$request->image->extension();
-        $request->image->move(public_path('images'), $imageName);
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure images directory exists
+        |--------------------------------------------------------------------------
+        */
+
+        if (!file_exists(public_path('images'))) {
+            mkdir(public_path('images'), 0755, true);
+        }
+
+        $imageName = time() . '.' . $request->image->extension();
+
+        $request->image->move(
+            public_path('images'),
+            $imageName
+        );
 
         $product = Product::create([
             'name'       => $request->name,
@@ -84,18 +101,24 @@ class ProductController extends Controller
             'sizes'      => $request->sizes,
             'colors'     => $request->colors,
             'categories' => $request->categories,
-            'status'     => 'active', // ✅ DEFAULT
+            'status'     => 'active',
         ]);
 
-        $this->logActivity('product_created', $product, "Product '{$product->name}' created");
+        $this->logActivity(
+            'product_created',
+            $product,
+            "Product '{$product->name}' created"
+        );
 
-        return redirect()->route('products.index')
+        return redirect()
+            ->route('admin.products.index')
             ->with('success', 'Product added successfully');
     }
 
     // ================================
-    // EDIT FORM
+    // EDIT
     // ================================
+
     public function edit(Product $product)
     {
         return view('products.edit', [
@@ -109,6 +132,7 @@ class ProductController extends Controller
     // ================================
     // UPDATE
     // ================================
+
     public function update(Request $request, Product $product)
     {
         $request->validate([
@@ -121,13 +145,45 @@ class ProductController extends Controller
             'image'      => 'nullable|image',
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Upload New Image
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+
+            if (!file_exists(public_path('images'))) {
+                mkdir(public_path('images'), 0755, true);
+            }
+
+            /*
+            | Delete old image
+            */
+
+            if (
+                $product->image &&
+                file_exists(public_path('images/' . $product->image))
+            ) {
+                unlink(
+                    public_path('images/' . $product->image)
+                );
+            }
+
+            $imageName = time() . '.' . $request->image->extension();
+
+            $request->image->move(
+                public_path('images'),
+                $imageName
+            );
+
             $product->image = $imageName;
+
+            $product->save();
         }
 
         $oldPrice = $product->price;
+
         $product->update([
             'name'       => $request->name,
             'details'    => $request->details,
@@ -138,28 +194,42 @@ class ProductController extends Controller
         ]);
 
         $changes = [];
+
         if ($oldPrice != $request->price) {
-            $changes['price'] = "{$oldPrice} -> {$request->price}";
+            $changes['price'] =
+                "{$oldPrice} -> {$request->price}";
         }
 
-        $this->logActivity('product_updated', $product, "Product '{$product->name}' updated", $changes);
+        $this->logActivity(
+            'product_updated',
+            $product,
+            "Product '{$product->name}' updated",
+            $changes
+        );
 
-        return redirect()->route('products.index')
+        return redirect()
+            ->route('admin.products.index')
             ->with('success', 'Product updated successfully');
     }
 
     // ================================
-    // DELETE (SOFT DELETE BY STATUS)
+    // DELETE
     // ================================
+
     public function destroy(Product $product)
     {
         $product->update([
-            'status' => 'deleted' // 
+            'status' => 'deleted'
         ]);
 
-        $this->logActivity('product_deleted', $product, "Product '{$product->name}' deleted");
+        $this->logActivity(
+            'product_deleted',
+            $product,
+            "Product '{$product->name}' deleted"
+        );
 
-        return redirect()->route('products.index')
+        return redirect()
+            ->route('admin.products.index')
             ->with('success', 'Product deleted successfully');
     }
 }

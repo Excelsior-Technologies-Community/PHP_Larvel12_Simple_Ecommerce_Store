@@ -48,10 +48,14 @@
                     <div class="product-card">
                         {{-- Product Image --}}
                         <div style="position: relative;">
-                            <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('images/'.$product->image) }}"
-                                 class="product-image"
-                                 alt="{{ $product->name }}"
-                                 onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+<img
+    src="{{ filter_var($product->image, FILTER_VALIDATE_URL)
+        ? $product->image
+        : asset('images/' . $product->image) }}"
+    class="product-image"
+    alt="{{ $product->name }}"
+    onerror="this.onerror=null; this.src='https://placehold.co/300x300?text=No+Image';"
+>
 
                             {{-- Wishlist Button --}}
                             @auth('customer')

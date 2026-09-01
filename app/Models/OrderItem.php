@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Size;
+use App\Models\Color;
+use App\Models\Category;
 
 class OrderItem extends Model
 {

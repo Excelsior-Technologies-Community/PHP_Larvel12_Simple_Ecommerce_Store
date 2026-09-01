@@ -139,17 +139,27 @@ class Product extends Model
         return $this->stock_quantity;
     }
 
-    public function scopeInStock($query)
-    {
-        return $query->where(function ($q) {
-            $q->where('track_stock', false)
-              ->orWhere('allow_backorder', true)
-              ->orWhere(function ($q2) {
-                  $q2->whereHas('activeVariants', function ($q3) {
-                      $q3->where('stock_quantity', '>', 0);
-                  });
-              })
-              ->orWhere('stock_quantity', '>', 0);
-        });
-    }
+public function scopeInStock($query)
+{
+    return $query->where(function ($q) {
+
+        $q->where('track_stock', false)
+
+          ->orWhere('allow_backorder', true)
+
+          ->orWhere(function ($q2) {
+
+              $q2->whereDoesntHave('variants')
+                  ->where('stock_quantity', '>', 0);
+
+          })
+
+          ->orWhereHas('activeVariants', function ($q3) {
+
+              $q3->where('stock_quantity', '>', 0);
+
+          });
+
+    });
+}
 }
