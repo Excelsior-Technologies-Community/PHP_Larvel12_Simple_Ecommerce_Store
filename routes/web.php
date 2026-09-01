@@ -138,7 +138,7 @@ Route::delete('/compare/clear', [CompareController::class, 'clear'])->name('comp
 
 Route::post('/customer/auto-logout', function () {
     if (auth('customer')->check()) {
-       Auth::guard('customer')->logout();
+        Auth::guard('customer')->logout();
         session()->invalidate();
         session()->regenerateToken();
     }
@@ -188,7 +188,8 @@ Route::middleware('auth:customer')->group(function () {
         ->name('cart.remove');
 });
 
-Route::post('/cart/update-quantity/{cart}',
+Route::post(
+    '/cart/update-quantity/{cart}',
     [CartController::class, 'updateQuantity']
 )->name('cart.update.quantity');
 
@@ -303,12 +304,41 @@ Route::middleware(['auth', 'admin.role'])->prefix('admin')->name('admin.')->grou
         ->name('activity-logs.index');
 
     // Products
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    // Products
+    Route::get('/products', [ProductController::class, 'index'])
+        ->name('products.index');
+
+    Route::get('/products/create', [ProductController::class, 'create'])
+        ->name('products.create');
+
+    Route::post('/products', [ProductController::class, 'store'])
+        ->name('products.store');
+
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])
+        ->name('products.edit');
+
+    Route::put('/products/{product}', [ProductController::class, 'update'])
+        ->name('products.update');
+
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])
+        ->name('products.destroy');
+
+    // Product Enhancements
+    Route::post(
+        '/products/{product}/toggle-status',
+        [ProductController::class, 'toggleStatus']
+    )->name('products.toggleStatus');
+
+    Route::post(
+        '/products/bulk-delete',
+        [ProductController::class, 'bulkDelete']
+    )->name('products.bulkDelete');
+
+    Route::post(
+        '/products/{product}/duplicate',
+        [ProductController::class, 'duplicate']
+    )->name('products.duplicate');
+
 
     // Product Variants
     Route::get('/products/{product}/variants', [ProductVariantController::class, 'index'])->name('products.variants.index');
